@@ -127,6 +127,7 @@ window.pickCharacter = function (charKey) {
   player.hp = player.maxHp;
 
   startScreen.classList.add("hidden");
+  document.getElementById("start-buttons").className = "button-container";
   document.getElementById("ui").classList.remove("hidden");
 
   const tt = document.getElementById("char-tooltip");

@@ -223,7 +223,7 @@ window.goToMainMenu = function () {
   permaShopScreen.classList.add("hidden");
   const btns = document.getElementById("start-buttons");
   btns.className = "button-container";
-  document.getElementById("start-title").innerText = "PETROVICH";
+  document.getElementById("start-title").innerText = "STARSHOT";
   btns.innerHTML = `
     <button onclick="startFirstGame()">START BATTLE</button>
     <button onclick="showPermaShop()">SHOP</button>
