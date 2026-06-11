@@ -15,7 +15,8 @@ Pixel-art 2.5D top-down shooter for PC. Runs in any browser — Windows, Linux, 
 
 ## How to play
 
-Open `index.html` in any modern browser.
+- **Online:** https://jazz-crab.github.io/starshot/
+- **Offline:** Open `index.html` in any modern browser.
 
 ## Controls
 
