@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no"
+        />
+        <title>STARSHOT</title>
+        <link rel="stylesheet" href="css/style.css" />
+        <link rel="stylesheet" href="css/ui.css" />
+        <link rel="stylesheet" href="css/menus.css" />
+        <link rel="stylesheet" href="css/characters.css" />
+        <link rel="stylesheet" href="css/overlays.css" />
+    </head>
+    <body>
+        <!-- START SCREEN -->
+        <div id="start-screen">
+            <h1 id="start-title">STARSHOT</h1>
+            <div class="button-container" id="start-buttons">
+                <button onclick="startFirstGame()">START BATTLE</button>
+                <button onclick="showPermaShop()">SHOP</button>
+                <button onclick="showStatsScreen()">STATS</button>
+                <button onclick="showSettingsScreen()">SETTINGS</button>
+            </div>
+        </div>
+
+        <!-- GAME UI -->
+        <div id="ui" class="hidden">
+            <div class="full-width-bar top-bar">
+                <div id="hp-bar-fill"></div>
+                <div class="bar-text">
+                    HP:&nbsp;<span id="hp-val">0</span>/<span id="hp-max">0</span>
+                </div>
+            </div>
+
+            <div class="full-width-bar bottom-bar">
+                <div id="wave-bar-fill"></div>
+                <div class="bar-text">
+                    <span id="wave-bar-label">Wave: 1</span>
+                </div>
+            </div>
+
+            <div class="top-left-ui-simple">
+                <div id="score-line">SCORE: <span id="score">0</span></div>
+                <div id="level-line">LEVEL: <span id="level">1</span></div>
+                <div id="xp-line">XP: <span id="xp-val">0/100</span></div>
+                <div style="color: #ffeb3b">
+                    COINS: <span id="coins">0</span>
+                </div>
+                <div
+                    id="auto-status"
+                    class="hidden blinking"
+                    style="color: #0f0"
+                >
+                    AUTO: ON (Y)
+                </div>
+            </div>
+
+            <div class="top-right-hud-wrapper">
+                <div id="weapon-stats-hud">
+                    <div class="hud-column">
+                        <div class="stat-row">
+                            <span>DAMAGE</span><span id="hud-dmg">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>FIRE RATE</span><span id="hud-firerate">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>MAGAZINE</span><span id="hud-mag">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>RELOAD</span
+                            ><span id="hud-reload">0</span>
+                        </div>
+                    </div>
+                    <div class="hud-column">
+                        <div class="stat-row">
+                            <span>RANGE</span><span id="hud-range">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>BULLET SPD</span
+                            ><span id="hud-bspeed">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>KNOCKBACK</span><span id="hud-kb">0</span>
+                        </div>
+                        <div class="stat-row">
+                            <span>ACCURACY</span><span id="hud-spread">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-right-ui-new">
+                <div class="ult-container-new">
+                    ULT (Q)
+                    <div class="ult-bar-bg"><div id="ult-bar-fill"></div></div>
+                </div>
+                <div class="grenade-label-new">
+                    ABILITY (RMB): <span id="grenade-label">READY</span>
+                </div>
+                <div class="ammo-label-new">
+                    AMMO: <span id="ammo">0</span> /
+                    <span id="mag-size">0</span>
+                </div>
+                <div
+                    id="reloading-label"
+                    style="color: #ff1744; font-weight: bold; height: 20px"
+                ></div>
+            </div>
+
+            <div id="timer-container">00:00</div>
+        </div>
+
+        <!-- UPGRADE MENU -->
+        <div id="upgrade-menu" class="hidden">
+            <h2>WEAPON UPGRADE</h2>
+            <div class="upgrade-grid">
+                <button onclick="upgradeStat('damage')">DMG +15%</button>
+                <button onclick="upgradeStat('fireRate')">
+                    FIRE RATE -10%
+                </button>
+                <button onclick="upgradeStat('magSize')">MAG +20%</button>
+                <button onclick="upgradeStat('reloadTime')">
+                    RELOAD -10%
+                </button>
+                <button onclick="upgradeStat('range')">RANGE +10%</button>
+                <button onclick="upgradeStat('bSpeed')">
+                    BULLET SPD +15%
+                </button>
+                <button onclick="upgradeStat('knockback')">
+                    KNOCKBACK +15%
+                </button>
+                <button onclick="upgradeStat('spread')">ACCURACY +15%</button>
+            </div>
+        </div>
+
+        <div id="resume-overlay" class="hidden">
+            <div id="resume-counter">3</div>
+        </div>
+        <div id="wave-announce" class="hidden"></div>
+        <div id="pause-screen" class="hidden">
+            <h1>PAUSE</h1>
+            <div class="button-container" style="margin-top:40px">
+                <button onclick="resumeGame()">RESUME</button>
+                <button onclick="pauseToMainMenu()">MAIN MENU</button>
+            </div>
+        </div>
+
+        <!-- DEATH SCREEN -->
+        <div id="death-screen" class="hidden">
+            <h1>DEFEATED</h1>
+            <div class="death-stats">
+                <div class="death-stat-row">
+                    <span class="death-stat-label">TIME</span>
+                    <span class="death-stat-value" id="stat-time">00:00</span>
+                </div>
+                <div class="death-stat-row">
+                    <span class="death-stat-label">SCORE</span>
+                    <span class="death-stat-value" id="stat-score">0</span>
+                </div>
+                <div class="death-stat-row">
+                    <span class="death-stat-label">COINS</span>
+                    <span class="death-stat-value" id="stat-coins">0</span>
+                </div>
+                <div class="death-stat-row">
+                    <span class="death-stat-label">LEVEL</span>
+                    <span class="death-stat-value" id="stat-level">1</span>
+                </div>
+                <div class="death-stat-row">
+                    <span class="death-stat-label">WAVE</span>
+                    <span class="death-stat-value" id="stat-wave">0</span>
+                </div>
+                <div class="death-stat-row">
+                    <span class="death-stat-label">KILLED</span>
+                    <span class="death-stat-value" id="stat-kills">0</span>
+                </div>
+                <div class="death-stat-row">
+                    <span class="death-stat-label">DAMAGE</span>
+                    <span class="death-stat-value" id="stat-damage">0</span>
+                </div>
+            </div>
+            <div class="button-container">
+                <button onclick="restartGame()">RESTART</button>
+                <button onclick="goToMainMenu()">MAIN MENU</button>
+            </div>
+        </div>
+
+        <!-- STATS SCREEN -->
+        <div id="stats-screen" class="hidden">
+            <h1>STATISTICS</h1>
+            <div class="death-stats">
+                <div class="death-stat-row">
+                    <span class="death-stat-label">TOTAL COINS</span>
+                    <span class="death-stat-value" id="stats-coins">0</span>
+                </div>
+                <div class="death-stat-row">
+                    <span class="death-stat-label">BEST SCORE</span>
+                    <span class="death-stat-value" id="stats-best-score">0</span>
+                </div>
+                <div class="death-stat-row">
+                    <span class="death-stat-label">BEST LEVEL</span>
+                    <span class="death-stat-value" id="stats-best-level">1</span>
+                </div>
+                <div class="death-stat-row">
+                    <span class="death-stat-label">BEST TIME</span>
+                    <span class="death-stat-value" id="stats-best-time">00:00</span>
+                </div>
+                <div class="death-stat-row">
+                    <span class="death-stat-label">TOTAL KILLS</span>
+                    <span class="death-stat-value" id="stats-total-kills">0</span>
+                </div>
+                <div class="death-stat-row">
+                    <span class="death-stat-label">TOTAL DAMAGE</span>
+                    <span class="death-stat-value" id="stats-total-damage">0</span>
+                </div>
+                <div class="death-stat-row">
+                    <span class="death-stat-label">RUNS</span>
+                    <span class="death-stat-value" id="stats-plays">0</span>
+                </div>
+            </div>
+            <div class="button-container">
+                <button onclick="closeStatsScreen()">BACK</button>
+            </div>
+        </div>
+
+        <!-- SETTINGS SCREEN -->
+        <div id="settings-screen" class="hidden">
+            <h1>SETTINGS</h1>
+            <div class="settings-list">
+                <div class="settings-row">
+                    <span class="settings-label">SFX VOLUME</span>
+                    <div class="settings-control">
+                        <button class="adj-btn" onclick="adjustSfxVolume(-0.1)">−</button>
+                        <span class="settings-value" id="sfx-vol-label">100%</span>
+                        <button class="adj-btn" onclick="adjustSfxVolume(0.1)">+</button>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <span class="settings-label">MUSIC VOLUME</span>
+                    <div class="settings-control">
+                        <button class="adj-btn" onclick="adjustMusicVolume(-0.1)">−</button>
+                        <span class="settings-value" id="music-vol-label">50%</span>
+                        <button class="adj-btn" onclick="adjustMusicVolume(0.1)">+</button>
+                    </div>
+                </div>
+            </div>
+            <div class="button-container">
+                <button onclick="closeSettingsScreen()">BACK</button>
+            </div>
+        </div>
+
+        <!-- SHOP (BETWEEN WAVES) -->
+        <!-- SHOP (PERMA) -->
+        <div id="perma-shop-screen" class="hidden">
+            <h1>SHOP</h1>
+            <div style="color:#ffeb3b;font-size:24px;margin-bottom:20px">
+                COINS: <span id="pshop-coins">0</span>
+            </div>
+            <div class="perma-shop-items">
+                <button id="pshop-permaHp" onclick="buyPermaShopItem('permaHp')">MAX HP +5</button>
+                <button id="pshop-permaDmg" onclick="buyPermaShopItem('permaDmg')">DAMAGE +5%</button>
+                <button id="pshop-permaSpd" onclick="buyPermaShopItem('permaSpd')">SPEED +0.3</button>
+            </div>
+            <div class="button-container">
+                <button onclick="closePermaShop()">BACK</button>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- CHARACTER INFO SCREEN -->
+        <div id="char-info-screen" class="hidden">
+            <h1 id="char-info-title"></h1>
+            <div id="char-info-desc"></div>
+            <div id="char-info-abilities"></div>
+            <div id="char-info-locked" class="hidden"></div>
+            <div class="button-container" style="margin-top:30px">
+                <button onclick="closeCharInfo()">CLOSE [ESC]</button>
+            </div>
+        </div>
+
+        <!-- CONSOLE -->
+        <div id="console-overlay" class="hidden">
+            <div id="console-output"></div>
+            <div id="console-input-line">
+                <span class="console-prompt">></span>
+                <span id="console-input" class="console-input-text"></span>
+            </div>
+        </div>
+
+        <!-- SCRIPTS -->
+        <script src="js/core/config.js"></script>
+        <script src="js/core/state.js"></script>
+        <script src="js/core/db.js"></script>
+        <script src="js/entities/player.js"></script>
+        <script src="js/entities/effects.js"></script>
+        <script src="js/entities/weapons.js"></script>
+        <script src="js/entities/enemies.js"></script>
+        <script src="js/systems/audio.js"></script>
+        <script src="js/systems/world.js"></script>
+        <script src="js/systems/camera.js"></script>
+        <script src="js/systems/combat.js"></script>
+        <script src="js/systems/render.js"></script>
+        <script src="js/ui/ui.js"></script>
+        <script src="js/systems/console.js"></script>
+        <script src="js/core/input.js"></script>
+        <script src="js/core/engine.js"></script>
+    </body>
+</html>
