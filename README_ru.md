@@ -23,13 +23,13 @@
 ## Управление
 
 - <kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> — Движение
-- <kbd>Mouse</kbd> — Прицеливание
-- <kbd>LMB</kbd> — Стрельба
-- <kbd>RMB</kbd> — Спецспособность
+- <kbd>Мышь</kbd> — Прицеливание
+- <kbd>ЛКМ</kbd> — Стрельба
+- <kbd>ПКМ</kbd> — Спецспособность
 - <kbd>R</kbd> — Перезарядка
 - <kbd>Q</kbd> — Ульта
-- <kbd>Space</kbd> — Рывок
-- <kbd>Escape</kbd> — Пауза
+- <kbd>Пробел</kbd> — Рывок
+- <kbd>Esc</kbd> — Пауза
 - <kbd>/</kbd> или <kbd>></kbd> или <kbd>~</kbd> — Терминал
 
 ## Лицензия

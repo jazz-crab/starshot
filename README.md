@@ -29,7 +29,7 @@ Pixel-art 2.5D top-down shooter for PC. Fully cross-platform — runs in any mod
 - <kbd>R</kbd> — Reload
 - <kbd>Q</kbd> — Ult
 - <kbd>Space</kbd> — Dash
-- <kbd>Escape</kbd> — Pause
+- <kbd>Esc</kbd> — Pause
 - <kbd>/</kbd> or <kbd>></kbd> or <kbd>~</kbd> — Terminal
 
 ## License
