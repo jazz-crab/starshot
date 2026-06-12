@@ -140,6 +140,17 @@
     background: #ffeb3b;
 }
 
+.grenade-label-new {
+    font-size: 12px;
+    color: #ccc;
+    margin-top: 6px;
+}
+
+#grenade-label {
+    color: #4caf50;
+    font-weight: bold;
+}
+
 /* MATCH TIMER */
 #timer-container {
     position: absolute;

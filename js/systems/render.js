@@ -30,9 +30,23 @@ function drawGame() {
   ctx.stroke();
 
   // 3. OBJECTS
+  obstacles.forEach((o) => {
+    const ox = o.worldX - camera.offsetX, oy = o.worldY - camera.offsetY;
+    ctx.fillStyle = o.color || "#555";
+    ctx.fillRect(ox - o.radius, oy - o.radius, o.radius * 2, o.radius * 2);
+    if (o.maxHp) {
+      const bw = o.radius * 2, bh = 3;
+      ctx.fillStyle = "rgba(0,0,0,0.5)";
+      ctx.fillRect(ox - bw / 2, oy - o.radius - 8, bw, bh);
+      ctx.fillStyle = "#ff6f00";
+      ctx.fillRect(ox - bw / 2, oy - o.radius - 8, (o.hp / o.maxHp) * bw, bh);
+    }
+  });
   healthPacks.forEach((hp) => hp.draw(camera.offsetX, camera.offsetY));
   projectiles.forEach((p) => p.draw());
   grenades.forEach((g) => g.draw());
+  fireTrails.forEach((ft) => ft.draw(camera.offsetX, camera.offsetY));
+  smokeClouds.forEach((sc) => sc.draw(camera.offsetX, camera.offsetY));
   particles.forEach((p) => p.draw(camera.offsetX, camera.offsetY));
   expOrbs.forEach((orb) => orb.draw(camera.offsetX, camera.offsetY));
   coinOrbs.forEach((coin) => coin.draw(camera.offsetX, camera.offsetY));
@@ -47,10 +61,18 @@ function drawGame() {
     const screenX = en.worldX - camera.offsetX;
     const screenY = en.worldY - camera.offsetY;
 
-    ctx.fillStyle = en.color;
+    ctx.fillStyle = en.burning ? "#ff5722" : en.color;
     ctx.beginPath();
     ctx.arc(screenX, screenY, en.radius, 0, Math.PI * 2);
     ctx.fill();
+
+    if (en.burning) {
+      ctx.strokeStyle = "#ff5722";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(screenX, screenY, en.radius + 3, 0, Math.PI * 2);
+      ctx.stroke();
+    }
 
     if (en.hp < en.maxHp) {
       const barWidth = en.radius * 2;
@@ -86,18 +108,18 @@ function drawGame() {
   if (player.isUltActive) {
     ctx.save();
     ctx.shadowBlur = 20;
-    ctx.shadowColor = "yellow";
-    ctx.strokeStyle = "yellow";
-    ctx.lineWidth = 3;
+    ctx.shadowColor = player.ultData?.type === 'shield' ? "#ff6f00" : "yellow";
+    ctx.strokeStyle = player.ultData?.type === 'shield' ? "#ff6f00" : "yellow";
+    ctx.lineWidth = player.ultData?.type === 'shield' ? 6 : 3;
     ctx.beginPath();
-    ctx.arc(pSX, pSY, player.radius + 2, 0, Math.PI * 2);
+    ctx.arc(pSX, pSY, player.radius + (player.ultData?.type === 'shield' ? 8 : 2), 0, Math.PI * 2);
     ctx.stroke();
     ctx.restore();
   }
 
   ctx.beginPath();
   ctx.arc(pSX, pSY, player.radius, 0, Math.PI * 2);
-  ctx.fillStyle = player.invulnerable ? "white" : player.color;
+  ctx.fillStyle = player.ultData?.type === 'shield' ? "#ff6f00" : player.invulnerable ? "white" : player.color;
   ctx.fill();
 
   if (player.dashCooldown < player.dashMaxCooldown) {

@@ -28,8 +28,12 @@ const player = {
   friction: 0.9,
   kbX: 0,
   kbY: 0,
-  grenadeCooldown: 0,
-  maxGrenadeCooldown: 180,
+  specialCooldown: 0,
+  maxSpecialCooldown: 180,
+  ultTimer: 0,
+  ultData: null,
+  dashData: null,
+  nextShotIgnites: null,
 };
 
 window.startFirstGame = function () {

@@ -28,16 +28,28 @@ function animate(now) {
     if (player.ammo === 0 && !player.isReloading && !player.isUltActive)
       startReload();
 
-    if (player.isUltActive) {
-      player.ult -= 0.6;
-      if (player.ult <= 0) {
-        player.ult = 0;
+    if (player.isUltActive || player.ultData) {
+      player.ultTimer--;
+      if (player.ultTimer <= 0) {
         player.isUltActive = false;
+        if (player.ultData?.type === 'shield') {
+          player.invulnerable = false;
+          if (player.ultData.explodeDamage > 0) {
+            for (let i = enemies.length - 1; i >= 0; i--) {
+              const en = enemies[i];
+              if (Math.hypot(player.worldX - en.worldX, player.worldY - en.worldY) < 150) {
+                en.hp -= player.ultData.explodeDamage;
+                if (en.hp <= 0) handleEnemyDeath(en, i);
+              }
+            }
+          }
+        }
+        player.ultData = null;
       }
     }
     if (player.dashCooldown < player.dashMaxCooldown)
       player.dashCooldown += 1.2;
-    if (player.grenadeCooldown > 0) player.grenadeCooldown--;
+    if (player.specialCooldown > 0) player.specialCooldown--;
 
     shakeIntensity *= 0.88;
 
@@ -49,6 +61,14 @@ function animate(now) {
     grenades.forEach((g, i) => {
       g.update();
       if (g.dead) grenades.splice(i, 1);
+    });
+    fireTrails.forEach((ft, i) => {
+      ft.update();
+      if (ft.dead) fireTrails.splice(i, 1);
+    });
+    smokeClouds.forEach((sc, i) => {
+      sc.update();
+      if (sc.dead) smokeClouds.splice(i, 1);
     });
     particles.forEach((p, i) => {
       p.update();
@@ -68,6 +88,7 @@ function animate(now) {
     });
 
     updateEnemiesLogic();
+    updateCharacterAbilities();
     updateWaveSpawn();
     updateUI();
   } else {
@@ -101,15 +122,39 @@ function updateEnemiesLogic() {
   enemies.forEach((en, i) => {
     if (en instanceof Boss) {
       en.update();
+      if (obstacles.length > 0) {
+        const oc = checkCircleObstacleCollision(en.worldX, en.worldY, en.radius);
+        en.worldX = oc.x;
+        en.worldY = oc.y;
+      }
     } else {
       en.worldX += en.kbVX;
       en.worldY += en.kbVY;
       en.kbVX *= 0.9;
       en.kbVY *= 0.9;
-      const a = Math.atan2(player.worldY - en.worldY, player.worldX - en.worldX);
+      // Smoke cloud stealth — enemies can't see player
+      let canSeePlayer = true;
+      for (const sc of smokeClouds) {
+        if (Math.hypot(player.worldX - sc.worldX, player.worldY - sc.worldY) < sc.radius) {
+          canSeePlayer = false;
+          break;
+        }
+      }
+      let moveAngle;
+      if (canSeePlayer) {
+        moveAngle = Math.atan2(player.worldY - en.worldY, player.worldX - en.worldX);
+      } else {
+        moveAngle = Math.atan2(en.kbVY || 1, en.kbVX || 1);
+      }
       if (Date.now() - en.lastAttack > 600) {
-        en.worldX += Math.cos(a) * en.speed;
-        en.worldY += Math.sin(a) * en.speed;
+        en.worldX += Math.cos(moveAngle) * en.speed;
+        en.worldY += Math.sin(moveAngle) * en.speed;
+      }
+      // Obstacle collision
+      if (obstacles.length > 0) {
+        const oc = checkCircleObstacleCollision(en.worldX, en.worldY, en.radius);
+        en.worldX = oc.x;
+        en.worldY = oc.y;
       }
     }
 

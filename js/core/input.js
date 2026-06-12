@@ -41,6 +41,16 @@ function handleInputs() {
   player.kbY *= 0.85;
   if (Math.abs(player.kbX) < 0.1) player.kbX = 0;
   if (Math.abs(player.kbY) < 0.1) player.kbY = 0;
+
+  if (obstacles.length > 0) {
+    const oc = checkCircleObstacleCollision(player.worldX, player.worldY, player.radius);
+    if (oc.x !== player.worldX || oc.y !== player.worldY) {
+      player.worldX = oc.x;
+      player.worldY = oc.y;
+      player.vx *= 0.5;
+      player.vy *= 0.5;
+    }
+  }
 }
 
 function clearHeldKeys() {
@@ -133,8 +143,6 @@ window.addEventListener("keydown", (e) => {
   }
   if (e.code === "Space" && !isPaused && gameActive && !isCountingDown) {
     if (player.dashCooldown >= player.dashMaxCooldown) {
-      player.dashCooldown = 0;
-      player.invulnerable = true;
       let dx = 0, dy = 0;
       if (keys["KeyW"] || keys["ArrowUp"]) dy = -1;
       if (keys["KeyS"] || keys["ArrowDown"]) dy = 1;
@@ -149,25 +157,18 @@ window.addEventListener("keydown", (e) => {
         dx /= mag;
         dy /= mag;
       }
-      player.vx = dx * player.maxSpeed * 8;
-      player.vy = dy * player.maxSpeed * 8;
-      player.isDashing = true;
-      player.dashCooldown = 0;
-      player.invulnerable = true;
-      setTimeout(() => {
-        player.isDashing = false;
-        player.invulnerable = false;
-      }, 160);
+      useCharacterDash(dx, dy);
     }
   }
   if (
     e.code === "KeyQ" &&
     player.ult >= player.maxUlt &&
     !player.isUltActive &&
+    !player.ultData &&
     gameActive &&
     !isPaused
   ) {
-    activateUlt();
+    activateCharacterUlt();
   }
 });
 

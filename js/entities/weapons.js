@@ -60,9 +60,25 @@ class Projectile {
           en.kbVY += Math.sin(this.angle) * this.knockback;
           en.hp -= actualDmg;
           totalDamageDealt += actualDmg;
+          if (player.nextShotIgnites) {
+            en.burning = { timer: player.nextShotIgnites.duration, damage: player.nextShotIgnites.dmg, tickCounter: 0 };
+            player.nextShotIgnites = null;
+          }
           this.dead = true;
           if (en.hp <= 0) handleEnemyDeath(en, i);
           break;
+        }
+      }
+      if (!this.dead) {
+        for (let i = obstacles.length - 1; i >= 0; i--) {
+          const o = obstacles[i];
+          if (Math.hypot(this.worldX - o.worldX, this.worldY - o.worldY) < o.radius + this.radius) {
+            o.hp -= actualDmg;
+            damageTexts.push(new DamageText(o.worldX, o.worldY, "-" + actualDmg, "#aaa"));
+            this.dead = true;
+            if (o.hp <= 0) obstacles.splice(i, 1);
+            break;
+          }
         }
       }
       if (this.dead) break;
@@ -145,7 +161,8 @@ class Grenade {
     playSound(80, "sawtooth", 0.4, 0.1);
     screenFlash = 5;
     shakeIntensity += 15;
-    enemies.forEach((en, i) => {
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      const en = enemies[i];
       if (Math.hypot(this.worldX - en.worldX, this.worldY - en.worldY) < 180) {
         const dmg = 20;
         damageTexts.push(
@@ -158,7 +175,14 @@ class Grenade {
         totalDamageDealt += dmg;
         if (en.hp <= 0) handleEnemyDeath(en, i);
       }
-    });
+    }
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      const o = obstacles[i];
+      if (Math.hypot(this.worldX - o.worldX, this.worldY - o.worldY) < 180 + o.radius) {
+        o.hp -= 20;
+        if (o.hp <= 0) obstacles.splice(i, 1);
+      }
+    }
     for (let k = 0; k < 30; k++)
       particles.push(new Particle(this.worldX, this.worldY, "#ff5722"));
   }
@@ -173,5 +197,61 @@ class Grenade {
       Math.PI * 2,
     );
     ctx.fill();
+  }
+}
+
+// ===== FIRE TRAIL (Pyro dash) =====
+class FireTrail {
+  constructor(x, y) {
+    this.worldX = x;
+    this.worldY = y;
+    this.timer = 30;
+    this.radius = 16;
+    this.dead = false;
+    for (let i = enemies.length - 1; i >= 0; i--) {
+      const en = enemies[i];
+      if (Math.hypot(this.worldX - en.worldX, this.worldY - en.worldY) < this.radius + en.radius) {
+        en.hp -= 2;
+        damageTexts.push(new DamageText(en.worldX, en.worldY, "-2", "#ff5722"));
+        if (en.hp <= 0) handleEnemyDeath(en, i);
+      }
+    }
+  }
+  update() {
+    this.timer--;
+    if (this.timer <= 0) this.dead = true;
+  }
+  draw(camX, camY) {
+    ctx.save();
+    ctx.globalAlpha = this.timer / 30;
+    ctx.fillStyle = "#ff5722";
+    ctx.beginPath();
+    ctx.arc(this.worldX - camX, this.worldY - camY, this.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+// ===== SMOKE CLOUD (Ninja special) =====
+class SmokeCloud {
+  constructor(x, y) {
+    this.worldX = x;
+    this.worldY = y;
+    this.timer = 120;
+    this.radius = 100;
+    this.dead = false;
+  }
+  update() {
+    this.timer--;
+    if (this.timer <= 0) this.dead = true;
+  }
+  draw(camX, camY) {
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, this.timer / 60) * 0.4;
+    ctx.fillStyle = "#9c27b0";
+    ctx.beginPath();
+    ctx.arc(this.worldX - camX, this.worldY - camY, this.radius, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
   }
 }

@@ -30,6 +30,8 @@ const expOrbs = [];
 const coinOrbs = [];
 const healthPacks = [];
 const damageTexts = [];
+const fireTrails = [];
+const smokeClouds = [];
 
 // Camera
 const camera = {
@@ -85,6 +87,8 @@ function resetGameState() {
   coinOrbs.length = 0;
   healthPacks.length = 0;
   damageTexts.length = 0;
+  fireTrails.length = 0;
+  smokeClouds.length = 0;
 
   player.worldX = 0;
   player.worldY = 0;
@@ -104,7 +108,11 @@ function resetGameState() {
   player.vy = 0;
   player.kbX = 0;
   player.kbY = 0;
-  player.grenadeCooldown = 0;
+  player.specialCooldown = 0;
+  player.ultTimer = 0;
+  player.ultData = null;
+  player.dashData = null;
+  player.nextShotIgnites = null;
 
   currentWep = null;
   score = 0;

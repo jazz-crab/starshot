@@ -74,6 +74,16 @@ function updateUI() {
 
   if (ultBar) ultBar.style.width = (player.ult / player.maxUlt) * 100 + "%";
 
+  const gLabel = document.getElementById("grenade-label");
+  if (gLabel) {
+    if (player.specialCooldown > 0) {
+      const pct = Math.round((1 - player.specialCooldown / player.maxSpecialCooldown) * 100);
+      gLabel.textContent = pct + "%";
+    } else {
+      gLabel.textContent = t('hud.ready');
+    }
+  }
+
   if (currentWep) {
     hudDmg.innerText = currentWep.damage;
     hudFire.innerText = currentWep.fireRate + "ms";
