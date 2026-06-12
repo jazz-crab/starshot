@@ -34,10 +34,14 @@ const player = {
 
 window.startFirstGame = function () {
   if (!dbReady) return;
-  document.getElementById("start-title").innerText = "CHOOSE FIGHTER";
+  document.getElementById("start-title").textContent = t('chars.choose');
   const btns = document.getElementById("start-buttons");
   btns.innerHTML = "";
   btns.className = "char-grid";
+
+  // Remove stale tooltip from previous calls
+  const old = document.getElementById("char-tooltip");
+  if (old) old.remove();
 
   const tooltip = document.createElement("div");
   tooltip.id = "char-tooltip";
@@ -49,7 +53,8 @@ window.startFirstGame = function () {
     const unlocked = charUnlocked[key];
     const btn = document.createElement("button");
     btn.className = unlocked ? "char-btn" : "char-btn locked";
-    btn.textContent = ch.name;
+    btn.textContent = t('char.' + key + '.name');
+    btn.dataset.i18n = 'char.' + key + '.name';
     if (unlocked) {
       btn.onclick = () => pickCharacter(key);
     }
@@ -64,15 +69,15 @@ window.showCharTooltip = function (key, btn) {
   const ch = CHARACTERS[key];
   const unlocked = charUnlocked[key];
   const tooltip = document.getElementById("char-tooltip");
-  let html = `<div class="tt-name">${ch.name}<span class="tt-hint"> [RMB] DETAILS</span></div>
-<div class="tt-desc">${ch.desc}</div>
+  let html = `<div class="tt-name">${t('char.' + key + '.name')}<span class="tt-hint"> ${t('chars.details')}</span></div>
+<div class="tt-desc">${t('char.' + key + '.desc')}</div>
 <div class="tt-abilities">
-  <span class="tt-ability">Dash: ${ch.abilities.dash.name}</span>
-  <span class="tt-ability">Ult: ${ch.abilities.ult.name}</span>
-  <span class="tt-ability">Special: ${ch.abilities.special.name}</span>
+  <span class="tt-ability">${t('chars.dashLabel')} ${t('char.' + key + '.abilities.dash.name')}</span>
+  <span class="tt-ability">${t('chars.ultLabel')} ${t('char.' + key + '.abilities.ult.name')}</span>
+  <span class="tt-ability">${t('chars.specialLabel')} ${t('char.' + key + '.abilities.special.name')}</span>
 </div>`;
   if (!unlocked) {
-    html += `<hr class="tt-hr"><div class="tt-locked">SCORE ${ch.unlockScore} TO UNLOCK</div>`;
+    html += `<hr class="tt-hr"><div class="tt-locked">${t('chars.unlock', { score: ch.unlockScore })}</div>`;
   }
   tooltip.innerHTML = html;
   tooltip.style.display = "block";
@@ -87,21 +92,23 @@ window.showCharTooltip = function (key, btn) {
 window.showCharInfo = function (key) {
   const ch = CHARACTERS[key];
   const unlocked = charUnlocked[key];
-  document.getElementById("char-info-title").textContent = ch.name;
-  document.getElementById("char-info-desc").textContent = ch.desc;
+  document.getElementById("char-info-title").textContent = t('char.' + key + '.name');
+  document.getElementById("char-info-desc").textContent = t('char.' + key + '.desc');
   let html = "";
   for (const [abKey, ab] of Object.entries(ch.abilities)) {
+    const abName = t('char.' + key + '.abilities.' + abKey + '.name');
     html += `<div class="ci-ability">
-      <div class="ci-ability-name">${ab.name}</div>`;
+      <div class="ci-ability-name">${abName}</div>`;
     ab.levels.forEach((lvl, i) => {
-      html += `<div class="ci-ability-level">Lv.${i + 1}: ${lvl}</div>`;
+      const lvlDesc = t('char.' + key + '.abilities.' + abKey + '.levels.' + i);
+      html += `<div class="ci-ability-level">${t('chars.level')} ${i + 1}: ${lvlDesc}</div>`;
     });
     html += `</div>`;
   }
   document.getElementById("char-info-abilities").innerHTML = html;
   const lockEl = document.getElementById("char-info-locked");
   if (!unlocked) {
-    lockEl.textContent = `SCORE ${ch.unlockScore} TO UNLOCK`;
+    lockEl.textContent = t('chars.unlock', { score: ch.unlockScore });
     lockEl.classList.remove("hidden");
   } else {
     lockEl.classList.add("hidden");
@@ -120,8 +127,9 @@ window.pickCharacter = function (charKey) {
   if (!characterAbilityLevels[charKey]) {
     characterAbilityLevels[charKey] = { dash: 1, ult: 1, special: 1 };
   }
-  // Always UZI as starting weapon
-  currentWep = JSON.parse(JSON.stringify(WEAPONS.uzi));
+  // Always WASP as starting weapon
+  currentWep = JSON.parse(JSON.stringify(WEAPONS.wasp));
+  currentWep.key = 'wasp';
   player.ammo = currentWep.magSize;
   applyPermaUpgrades();
   player.hp = player.maxHp;
@@ -139,8 +147,4 @@ window.pickCharacter = function (charKey) {
 
   startWave();
   updateUI();
-};
-
-window.evolveWeapon = function () {
-  // No longer used — replaced by ability mutation
 };

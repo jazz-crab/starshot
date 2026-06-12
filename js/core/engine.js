@@ -207,6 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
       isAutoFire = savedProgress.settings?.autoFire || false;
       sfxVolume = savedProgress.settings?.sfxVolume ?? 1;
       musicVolume = savedProgress.settings?.musicVolume ?? 0.5;
+      currentLang = savedProgress.settings?.lang || 'en';
       if (savedProgress.permaUpgrades) {
         permaUpgrades = { ...permaUpgrades, ...savedProgress.permaUpgrades };
       }
@@ -215,6 +216,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       updateUI();
     }
+    applyLanguage();
     dbReady = true;
     requestAnimationFrame(animate);
   });

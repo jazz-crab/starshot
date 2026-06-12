@@ -235,12 +235,11 @@ function handleEnemyDeath(en, index) {
   if (enemies.length === 0 && waveActive) {
     waveCleared = true;
     waveActive = false;
-    const wavePoints = Math.floor(currentWave / 2) + 1;
-    upgradePoints += wavePoints;
-    if (upgradeMenu.classList.contains("hidden")) {
-      isPaused = true;
-      upgradeMenu.classList.remove("hidden");
-    }
     updateUI();
+    if (isBossWave) {
+      showEvolutionTree();
+    } else {
+      showWaveAnnounce(currentWave + 1);
+    }
   }
 }

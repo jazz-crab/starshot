@@ -15,13 +15,13 @@ const DEFAULT_PROGRESS = {
   totalKills: 0,
   totalDamage: 0,
   playsCount: 0,
-  unlockedWeapons: ["pistol"],
   permaUpgrades: { permaHp: 0, permaDmg: 0, permaSpd: 0 },
   charUnlocked: { assault: true },
   settings: {
     autoFire: false,
     sfxVolume: 1,
     musicVolume: 0.5,
+    lang: 'en',
   },
 };
 

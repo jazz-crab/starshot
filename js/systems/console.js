@@ -142,7 +142,7 @@ function executeCommand(line) {
   const args = parts.slice(1);
   const cmd = CONSOLE_COMMANDS[cmdName];
   if (!cmd) {
-    addOutput("Unknown command. Type help", "#ff5555");
+    addOutput(t('console.unknownCmd'), "#ff5555");
     return;
   }
   try {
@@ -151,7 +151,7 @@ function executeCommand(line) {
       addOutput(result, "#00e5ff");
     }
   } catch (e) {
-    addOutput("Error: " + e.message, "#ff5555");
+    addOutput(t('console.error') + ": " + e.message, "#ff5555");
   }
 }
 
@@ -164,7 +164,7 @@ function cmdHelp() {
 
 function cmdSetHp(args) {
   const n = parseInt(args[0]);
-  if (isNaN(n) || n < 0) return "Enter a number";
+  if (isNaN(n) || n < 0) return t('console.enterNumber');
   player.hp = Math.min(n, player.maxHp);
   updateUI();
   return "HP = " + Math.ceil(player.hp);
@@ -172,7 +172,7 @@ function cmdSetHp(args) {
 
 function cmdSetMaxHp(args) {
   const n = parseInt(args[0]);
-  if (isNaN(n) || n < 1) return "Enter a number > 0";
+  if (isNaN(n) || n < 1) return t('console.enterPosNumber');
   player.maxHp = n;
   player.hp = Math.min(player.hp, player.maxHp);
   updateUI();
@@ -181,7 +181,7 @@ function cmdSetMaxHp(args) {
 
 function cmdAddHp(args) {
   const n = parseInt(args[0]);
-  if (isNaN(n)) return "Enter a number";
+  if (isNaN(n)) return t('console.enterNumber');
   player.hp = Math.min(player.hp + n, player.maxHp);
   updateUI();
   return "HP = " + Math.ceil(player.hp);
@@ -189,7 +189,7 @@ function cmdAddHp(args) {
 
 function cmdSetMoney(args) {
   const n = parseInt(args[0]);
-  if (isNaN(n) || n < 0) return "Enter a number";
+  if (isNaN(n) || n < 0) return t('console.enterNumber');
   coins = n;
   updateUI();
   return "Coins = " + Math.floor(coins);
@@ -197,7 +197,7 @@ function cmdSetMoney(args) {
 
 function cmdAddMoney(args) {
   const n = parseInt(args[0]);
-  if (isNaN(n)) return "Enter a number";
+  if (isNaN(n)) return t('console.enterNumber');
   coins += n;
   updateUI();
   return "Coins = " + Math.floor(coins);
@@ -205,7 +205,7 @@ function cmdAddMoney(args) {
 
 function cmdSetXp(args) {
   const n = parseInt(args[0]);
-  if (isNaN(n) || n < 0) return "Enter a number";
+  if (isNaN(n) || n < 0) return t('console.enterNumber');
   player.xp = n;
   updateUI();
   return "XP = " + player.xp;
@@ -213,7 +213,7 @@ function cmdSetXp(args) {
 
 function cmdAddXp(args) {
   const n = parseInt(args[0]);
-  if (isNaN(n)) return "Enter a number";
+  if (isNaN(n)) return t('console.enterNumber');
   player.xp += n;
   updateUI();
   return "XP = " + player.xp;
@@ -221,14 +221,14 @@ function cmdAddXp(args) {
 
 function cmdSetLvl(args) {
   const n = parseInt(args[0]);
-  if (isNaN(n) || n < 1) return "Enter a number >= 1";
+  if (isNaN(n) || n < 1) return t('console.enterPosNumber');
   player.level = n;
   updateUI();
   return "Level = " + player.level;
 }
 
 function cmdKill() {
-  if (enemies.length === 0) return "No enemies";
+  if (enemies.length === 0) return t('console.noEnemies');
   const count = enemies.length;
   for (let i = enemies.length - 1; i >= 0; i--) {
     handleEnemyDeath(enemies[i], i);
@@ -238,12 +238,12 @@ function cmdKill() {
 
 function cmdGod() {
   isGodMode = !isGodMode;
-  return "God mode: " + (isGodMode ? "ON" : "OFF");
+  return isGodMode ? t('console.godOn') : t('console.godOff');
 }
 
 function cmdWave(args) {
   const n = parseInt(args[0]);
-  if (isNaN(n) || n < 1) return "Enter wave number (>=1)";
+  if (isNaN(n) || n < 1) return t('console.enterWave');
   enemies.length = 0;
   waveActive = false;
   waveCleared = false;
@@ -266,12 +266,12 @@ function cmdUnlockAll() {
     savedProgress.charUnlocked = { ...charUnlocked };
     dbSave(savedProgress);
   }
-  return "All characters unlocked";
+  return t('console.allUnlocked');
 }
 
 function cmdHeal() {
   player.hp = player.maxHp;
   player.invulnerable = false;
   updateUI();
-  return "HP restored";
+  return t('console.hpRestored');
 }

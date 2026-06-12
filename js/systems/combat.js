@@ -59,7 +59,7 @@ function startReload() {
     return;
 
   player.isReloading = true;
-  if (reloadEl) reloadEl.innerText = "RELOADING...";
+  if (reloadEl) reloadEl.textContent = t('combat.reloading');
 
   const rTime = currentWep.reloadTime || 1000;
 
@@ -78,7 +78,7 @@ function createProjectiles(offset, baseAngle) {
     const a = angle + (Math.random() - 0.5) * currentWep.spread;
     let s =
       currentWep.bSpeed *
-      (currentWep.name === "SAWED OFF" ? 0.7 + Math.random() * 0.6 : 1);
+      (currentWep.key === 'grizzly' ? 0.7 + Math.random() * 0.6 : 1);
     projectiles.push(
       new Projectile(
         player.worldX,
@@ -113,61 +113,21 @@ function activateUlt() {
   playSound(600, "sawtooth", 0.3, 0.05);
 }
 
-// ===== WEAPON STAT UPGRADES =====
-window.upgradeStat = function (stat) {
-  if (upgradePoints <= 0) return;
-  upgradePoints--;
-
-  switch (stat) {
-    case "damage":
-      currentWep.damage = Math.ceil(currentWep.damage * 1.15);
-      break;
-    case "magSize":
-      currentWep.magSize = Math.ceil(currentWep.magSize * 1.2);
-      break;
-    case "range":
-      currentWep.range += Math.ceil(currentWep.range * 0.1);
-      break;
-    case "bSpeed":
-      currentWep.bSpeed = Math.ceil(currentWep.bSpeed * 1.15);
-      break;
-    case "knockback":
-      currentWep.knockback = Math.ceil(currentWep.knockback * 1.15);
-      break;
-    case "fireRate":
-      currentWep.fireRate = Math.max(50, Math.floor(currentWep.fireRate * 0.9));
-      break;
-    case "reloadTime":
-      currentWep.reloadTime = Math.max(
-        200,
-        Math.floor(currentWep.reloadTime * 0.9),
-      );
-      break;
-    case "spread":
-      currentWep.spread = Math.max(0.01, currentWep.spread * 0.85);
-      break;
-  }
-
-  playSound(440, "triangle", 0.1, 0.05);
-  updateUI();
-
-  if (upgradePoints === 0) {
-    upgradeMenu.classList.add("hidden");
-    clearHeldKeys();
-    if (!waveActive && waveCleared) {
-      isPaused = false;
-      waveCleared = false;
-      if (isBossWave) {
-        // After boss wave — character evolution
-        showEvolutionTree();
-      } else {
-        showWaveAnnounce(currentWave + 1);
-      }
-    } else {
-      startWorldResumeTimer();
-    }
-  }
-};
+// ===== AUTO UPGRADE ON LEVEL UP =====
+function applyAutoUpgrade() {
+  if (!currentWep) return;
+  const mult = 1.05;
+  const slowMult = 1.01;
+  player.maxHp = Math.ceil(player.maxHp * 1.1);
+  currentWep.damage = Math.ceil(currentWep.damage * mult);
+  currentWep.magSize = Math.ceil(currentWep.magSize * mult);
+  currentWep.range += Math.ceil(currentWep.range * 0.05);
+  currentWep.bSpeed = Math.ceil(currentWep.bSpeed * slowMult);
+  currentWep.knockback = Math.ceil(currentWep.knockback * slowMult);
+  currentWep.fireRate = Math.max(50, Math.floor(currentWep.fireRate / mult));
+  currentWep.reloadTime = Math.max(200, Math.floor(currentWep.reloadTime / mult));
+  currentWep.spread = Math.max(0.01, currentWep.spread * 0.95);
+}
 
 // ===== XP / LEVEL UP =====
 function gainXp(amount) {
@@ -176,8 +136,7 @@ function gainXp(amount) {
     player.level++;
     player.xp = 0;
     player.nextLevelXp += 100;
-    upgradePoints++;
-    showUpgradePointAnim();
+    applyAutoUpgrade();
     playSound(500, "sine", 0.3, 0.05);
   }
   updateUI();
@@ -187,25 +146,26 @@ function gainXp(amount) {
 function showEvolutionTree() {
   const ch = CHARACTERS[currentCharacter];
   startScreen.classList.remove("hidden");
-  document.getElementById("start-title").innerHTML =
-    `EVOLUTION: ${ch.name}`;
+  document.getElementById("start-title").textContent =
+    t('combat.evolution', { name: t('char.' + currentCharacter + '.name') });
 
   const btns = document.getElementById("start-buttons");
   btns.className = "evo-tree";
   const muts = abilityMutations[currentCharacter] || {};
 
-  btns.innerHTML = ["dash", "ult", "special"].map((key) => {
-    const ab = ch.abilities[key];
-    const opts = MUTATIONS[key].map((m, i) => {
-      const already = muts[key] && muts[key].label === m.label;
-      return `<div class="evo-card ${already ? "evo-chosen" : ""}" onclick="${already ? '' : "pickEvolution('" + key + "', " + i + ")"}">
-        <div class="evo-card-title">${m.label}</div>
-        <div class="evo-card-desc">${m.desc}</div>
-        <div class="evo-card-action">${already ? "CHOSEN" : "[SELECT]"}</div>
+  btns.innerHTML = ["dash", "ult", "special"].map((abKey) => {
+    const abName = t('char.' + currentCharacter + '.abilities.' + abKey + '.name');
+    const opts = MUTATIONS[abKey].map((m, i) => {
+      const already = muts[abKey] !== undefined && muts[abKey] === i;
+      const mLang = STRINGS[currentLang].mutation[abKey][i];
+      return `<div class="evo-card ${already ? "evo-chosen" : ""}" onclick="${already ? '' : "pickEvolution('" + abKey + "', " + i + ")"}">
+        <div class="evo-card-title">${mLang.label}</div>
+        <div class="evo-card-desc">${mLang.desc}</div>
+        <div class="evo-card-action">${already ? t('combat.chosen') : t('combat.select')}</div>
       </div>`;
     }).join("");
     return `<div class="evo-column">
-      <div class="evo-ability-header">${ab.name}</div>
+      <div class="evo-ability-header">${abName}</div>
       ${opts}
     </div>`;
   }).join("");
@@ -217,7 +177,7 @@ function showEvolutionTree() {
 
 window.pickEvolution = function (abilityKey, mutIdx) {
   abilityMutations[currentCharacter] = abilityMutations[currentCharacter] || {};
-  abilityMutations[currentCharacter][abilityKey] = MUTATIONS[abilityKey][mutIdx];
+  abilityMutations[currentCharacter][abilityKey] = mutIdx;
   startScreen.classList.add("hidden");
   document.getElementById("start-buttons").className = "button-container";
   isPaused = false;

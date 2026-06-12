@@ -45,7 +45,6 @@ const camera = {
 let currentWep = null;
 let killsSinceLastHealthPack = 0;
 let bonusHealthPackChance = 0;
-let upgradePoints = 0;
 let totalKills = 0;
 let totalDamageDealt = 0;
 
@@ -111,7 +110,6 @@ function resetGameState() {
   score = 0;
   gameTime = 0;
   difficultyLevel = 1;
-  upgradePoints = 0;
   totalKills = 0;
   totalDamageDealt = 0;
   killsSinceLastHealthPack = 0;

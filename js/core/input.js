@@ -129,9 +129,6 @@ window.addEventListener("keydown", (e) => {
     if (sb && sb.className === "evo-tree") {
       return;
     }
-    if (!upgradeMenu.classList.contains("hidden")) {
-      return;
-    }
     togglePauseGame();
   }
   if (e.code === "Space" && !isPaused && gameActive && !isCountingDown) {

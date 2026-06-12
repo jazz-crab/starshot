@@ -16,7 +16,6 @@ const hpBar = document.getElementById("hp-bar-fill"),
 
 // Screens and overlays
 const pauseScreen = document.getElementById("pause-screen"),
-  upgradeMenu = document.getElementById("upgrade-menu"),
   startScreen = document.getElementById("start-screen"),
   deathScreen = document.getElementById("death-screen"),
   statsScreen = document.getElementById("stats-screen"),
@@ -63,17 +62,17 @@ function updateUI() {
     } else {
       waveBar.style.width = "0%";
     }
-    if (waveBarLabel)
-      waveBarLabel.innerText = `Wave: ${currentWave}`;
+    if (waveBarLabel) {
+      waveBarLabel.textContent = t('hud.wave');
+      const waveNum = document.getElementById('wave-num');
+      if (waveNum) waveNum.textContent = currentWave;
+    }
   }
   // XP text at top
   if (xpVal)
     xpVal.innerText = Math.floor(player.xp) + " / " + player.nextLevelXp;
 
   if (ultBar) ultBar.style.width = (player.ult / player.maxUlt) * 100 + "%";
-
-  const menuTitle = upgradeMenu.querySelector("h2");
-  if (menuTitle) menuTitle.innerHTML = `WEAPON UPGRADE (${upgradePoints})`;
 
   if (currentWep) {
     hudDmg.innerText = currentWep.damage;
@@ -96,8 +95,7 @@ function updateUI() {
 function togglePauseGame() {
   if (
     !gameActive ||
-    isCountingDown ||
-    !upgradeMenu.classList.contains("hidden")
+    isCountingDown
   )
     return;
   if (isPaused) {
@@ -160,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
   startScreen.querySelectorAll("button").forEach((b) => wrapButton(b, "start"));
   const hints = document.querySelectorAll(".hint");
   hints.forEach((h) => {
-    if (h.closest("#upgrade-menu")) h.classList.add("hidden");
+    h.classList.add("hidden");
   });
 });
 
@@ -221,14 +219,16 @@ window.goToMainMenu = function () {
   resetGameState();
   deathScreen.classList.add("hidden");
   permaShopScreen.classList.add("hidden");
+  const tt = document.getElementById("char-tooltip");
+  if (tt) tt.remove();
   const btns = document.getElementById("start-buttons");
   btns.className = "button-container";
-  document.getElementById("start-title").innerText = "STARSHOT";
+  document.getElementById("start-title").textContent = t('menu.title');
   btns.innerHTML = `
-    <button onclick="startFirstGame()">START BATTLE</button>
-    <button onclick="showPermaShop()">SHOP</button>
-    <button onclick="showStatsScreen()">STATS</button>
-    <button onclick="showSettingsScreen()">SETTINGS</button>
+    <button onclick="startFirstGame()" data-i18n="menu.startBattle">${t('menu.startBattle')}</button>
+    <button onclick="showPermaShop()" data-i18n="menu.shop">${t('menu.shop')}</button>
+    <button onclick="showStatsScreen()" data-i18n="menu.stats">${t('menu.stats')}</button>
+    <button onclick="showSettingsScreen()" data-i18n="menu.settings">${t('menu.settings')}</button>
   `;
   startScreen.querySelectorAll("button").forEach((b) => wrapButton(b, "start"));
   startScreen.classList.remove("hidden");
@@ -262,6 +262,7 @@ window.showSettingsScreen = function () {
   startScreen.classList.add("hidden");
   document.getElementById("sfx-vol-label").innerText = Math.round(sfxVolume * 100) + "%";
   document.getElementById("music-vol-label").innerText = Math.round(musicVolume * 100) + "%";
+  document.getElementById("lang-label").textContent = getLangLabel(currentLang);
   settingsScreen.classList.remove("hidden");
   settingsScreen.querySelectorAll("button").forEach((b) => wrapButton(b, "start"));
 };
@@ -269,6 +270,25 @@ window.showSettingsScreen = function () {
 window.closeSettingsScreen = function () {
   settingsScreen.classList.add("hidden");
   startScreen.classList.remove("hidden");
+};
+
+window.cycleLanguage = function (delta) {
+  const langs = ['en', 'ru'];
+  const idx = langs.indexOf(currentLang) + delta;
+  if (idx < 0 || idx >= langs.length) return;
+  currentLang = langs[idx];
+  document.getElementById("lang-label").textContent = getLangLabel(currentLang);
+  applyLanguage();
+  if (!permaShopScreen.classList.contains("hidden")) {
+    updatePermaShopButtons();
+  }
+  if (gameActive) {
+    updateUI();
+  }
+  if (savedProgress) {
+    savedProgress.settings.lang = currentLang;
+    dbSave(savedProgress);
+  }
 };
 
 window.adjustSfxVolume = function (delta) {
@@ -307,10 +327,11 @@ function updatePermaShopButtons() {
     btn.disabled = maxed || coins < cost;
     btn.style.opacity = btn.disabled ? "0.4" : "1";
     let text;
+    const itemLabel = t('shop.' + key);
     if (maxed) {
-      text = `${item.label} — MAX`;
+      text = `${itemLabel} — ${t('shop.max')}`;
     } else {
-      text = `${item.label} [${level}/${item.maxLevel}] (${cost}💰)`;
+      text = `${itemLabel} [${level}/${item.maxLevel}] (${cost}💰)`;
     }
     const textBase = btn.querySelector(".btn-text-base");
     const textOverlay = btn.querySelector(".btn-text-overlay");
@@ -363,21 +384,21 @@ function showWaveAnnounce(waveNum) {
   }
   const el = document.getElementById("wave-announce");
   const label = document.getElementById("wave-bar-label");
+  const waveNumEl = document.getElementById("wave-num");
+  const waveTextWrap = document.getElementById("wave-text-wrap");
 
-  // Build flip structure: old number flips out, new flips in
-  const oldNum = label.innerText.replace("Wave: ", "");
-  el.innerHTML = 'Wave: <span class="flip-wrap"><span class="flip-old">' + oldNum + '</span><span class="flip-new">' + waveNum + '</span></span>';
+  const oldNum = waveNumEl ? waveNumEl.textContent : currentWave;
+  const waveText = t('hud.wave');
+  el.innerHTML = waveText + ': <span class="flip-wrap"><span class="flip-old">' + oldNum + '</span><span class="flip-new">' + waveNum + '</span></span>';
 
-  label.style.opacity = "0";
+  if (waveTextWrap) waveTextWrap.style.opacity = "0";
 
-  // Start from the bottom bar
   el.classList.remove("hidden");
   el.style.transition = "none";
   el.style.opacity = "0";
   el.style.bottom = "0";
   el.style.transform = "translateX(-50%) scale(1)";
 
-  // Force reflow, then rise just above bar
   void el.offsetWidth;
   el.style.transition = "all 0.3s cubic-bezier(0.22, 1, 0.36, 1)";
   el.style.opacity = "1";
@@ -385,14 +406,12 @@ function showWaveAnnounce(waveNum) {
   el.style.transform = "translateX(-50%) scale(2.5)";
 
   waveAnnounceTimer = setTimeout(() => {
-    // Trigger the flip
     const oldEl = el.querySelector(".flip-old");
     const newEl = el.querySelector(".flip-new");
     if (oldEl) oldEl.classList.add("flip-out");
     if (newEl) newEl.classList.add("flip-in");
 
     setTimeout(() => {
-      // Fall back to bottom bar
       el.style.transition = "all 0.3s ease-in";
       el.style.opacity = "0";
       el.style.bottom = "0";
@@ -402,21 +421,13 @@ function showWaveAnnounce(waveNum) {
         el.classList.add("hidden");
         el.style.transition = "";
         el.innerHTML = "";
-        label.innerText = "Wave: " + waveNum;
-        label.style.opacity = "1";
+        if (waveTextWrap) waveTextWrap.style.opacity = "1";
+        if (label) label.textContent = waveText;
+        if (waveNumEl) waveNumEl.textContent = waveNum;
         startWave();
       }, 300);
     }, 700);
   }, 400);
-}
-
-// ===== UPGRADE POINT ANIMATION =====
-function showUpgradePointAnim() {
-  const el = document.createElement("div");
-  el.className = "upgrade-point-fly";
-  el.innerText = "+1";
-  document.body.appendChild(el);
-  el.addEventListener("animationend", () => el.remove());
 }
 
 // ===== RESIZE =====
