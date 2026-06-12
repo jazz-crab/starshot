@@ -21,3 +21,10 @@ Pixel-art 2.5D top-down shooter for PC. Runs in any browser — Windows, Linux, 
 ## Controls
 
 WASD — move | Mouse — aim | LMB — shoot | RMB — special | Q — ult | Space — dash
+
+## License
+
+This project uses a split licensing model:
+
+* **Source Code:** Licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute the code.
+* **Game Assets (Art & Music):** **All Rights Reserved**. The graphics, audio, and level designs are proprietary. You may not use them in your own projects or redistribute the playable game on other platforms without permission. See [`assets/LICENSE.txt`](assets/LICENSE.txt) for more details.
