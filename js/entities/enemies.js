@@ -160,21 +160,40 @@ function spawnEnemy() {
   const cfg = ENEMY_TYPES[idx];
   const hpMult = 1 + (currentWave - 1) * WAVE_CONFIG.hpScale;
 
-  const side = Math.floor(Math.random() * 4);
   const margin = 80;
+  const halfW = canvas.width / 2;
+  const halfH = canvas.height / 2;
   let wx, wy;
+  const side = Math.floor(Math.random() * 4);
   if (side === 0) {
-    wx = camera.x - canvas.width / 2 + Math.random() * canvas.width;
-    wy = camera.y - canvas.height / 2 - margin;
+    wx = camera.x - halfW + Math.random() * canvas.width;
+    wy = camera.y - halfH - margin;
   } else if (side === 1) {
-    wx = camera.x + canvas.width / 2 + margin;
-    wy = camera.y - canvas.height / 2 + Math.random() * canvas.height;
+    wx = camera.x + halfW + margin;
+    wy = camera.y - halfH + Math.random() * canvas.height;
   } else if (side === 2) {
-    wx = camera.x - canvas.width / 2 + Math.random() * canvas.width;
-    wy = camera.y + canvas.height / 2 + margin;
+    wx = camera.x - halfW + Math.random() * canvas.width;
+    wy = camera.y + halfH + margin;
   } else {
-    wx = camera.x - canvas.width / 2 - margin;
-    wy = camera.y - canvas.height / 2 + Math.random() * canvas.height;
+    wx = camera.x - halfW - margin;
+    wy = camera.y - halfH + Math.random() * canvas.height;
+  }
+
+  for (const o of obstacles) {
+    if (!o.vertices) continue;
+    const lx = wx - o.worldX;
+    const ly = wy - o.worldY;
+    if (isInsidePolygon(lx, ly, o.vertices) || getPolygonEdgeDist(wx, wy, o.vertices, o.worldX, o.worldY) < cfg.radius + 15) {
+      const dx = o.worldX - player.worldX;
+      const dy = o.worldY - player.worldY;
+      const len = Math.hypot(dx, dy) || 1;
+      const dirX = dx / len;
+      const dirY = dy / len;
+      const r = getRockRadiusInDirection(dirX, dirY, o.vertices);
+      wx = o.worldX + dirX * (r + cfg.radius + 10);
+      wy = o.worldY + dirY * (r + cfg.radius + 10);
+      break;
+    }
   }
 
   const scaledHp = Math.ceil(cfg.hp * hpMult);

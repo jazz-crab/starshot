@@ -4,15 +4,25 @@
 let lastTime = performance.now();
 let dashTrailTick = 0;
 let gameLoopInterval = null;
+let fpsFrames = 0;
+let fpsLastTime = performance.now();
+let currentFps = 0;
 
 function animate(now) {
   const dt = now - lastTime;
   lastTime = now;
+  fpsFrames++;
+  if (now - fpsLastTime >= 1000) {
+    currentFps = fpsFrames;
+    fpsFrames = 0;
+    fpsLastTime = now;
+  }
   requestAnimationFrame(animate);
 
   if (!isPaused && gameActive && !isCountingDown && !isConsoleOpen) {
     handleInputs();
     updateCamera();
+    updateChunks();
 
     if (player.isDashing) {
       dashTrailTick++;
@@ -124,8 +134,12 @@ function updateEnemiesLogic() {
       en.update();
       if (obstacles.length > 0) {
         const oc = checkCircleObstacleCollision(en.worldX, en.worldY, en.radius);
+        const pushX = oc.x - en.worldX;
+        const pushY = oc.y - en.worldY;
         en.worldX = oc.x;
         en.worldY = oc.y;
+        en.kbVX += pushX * 0.5;
+        en.kbVY += pushY * 0.5;
       }
     } else {
       en.worldX += en.kbVX;
@@ -153,8 +167,12 @@ function updateEnemiesLogic() {
       // Obstacle collision
       if (obstacles.length > 0) {
         const oc = checkCircleObstacleCollision(en.worldX, en.worldY, en.radius);
+        const pushX = oc.x - en.worldX;
+        const pushY = oc.y - en.worldY;
         en.worldX = oc.x;
         en.worldY = oc.y;
+        en.kbVX += pushX * 0.5;
+        en.kbVY += pushY * 0.5;
       }
     }
 

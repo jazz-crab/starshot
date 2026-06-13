@@ -72,11 +72,27 @@ class Projectile {
       if (!this.dead) {
         for (let i = obstacles.length - 1; i >= 0; i--) {
           const o = obstacles[i];
-          if (Math.hypot(this.worldX - o.worldX, this.worldY - o.worldY) < o.radius + this.radius) {
+          let hit = false;
+          if (o.vertices) {
+            const lx = this.worldX - o.worldX;
+            const ly = this.worldY - o.worldY;
+            hit = isInsidePolygon(lx, ly, o.vertices) || getPolygonEdgeDist(this.worldX, this.worldY, o.vertices, o.worldX, o.worldY) < this.radius;
+          } else {
+            hit = Math.hypot(this.worldX - o.worldX, this.worldY - o.worldY) < o.radius + this.radius;
+          }
+          if (hit) {
             o.hp -= actualDmg;
             damageTexts.push(new DamageText(o.worldX, o.worldY, "-" + actualDmg, "#aaa"));
             this.dead = true;
-            if (o.hp <= 0) obstacles.splice(i, 1);
+            if (o.vertices) {
+              const intact = o.outlineSegments.filter(s => !s.broken);
+              if (intact.length > 0) {
+                intact[Math.floor(Math.random() * intact.length)].broken = true;
+              }
+            }
+            if (o.hp <= 0) {
+              if (o.vertices) { destroyRock(o, i); } else { obstacles.splice(i, 1); }
+            }
             break;
           }
         }
@@ -178,9 +194,25 @@ class Grenade {
     }
     for (let i = obstacles.length - 1; i >= 0; i--) {
       const o = obstacles[i];
-      if (Math.hypot(this.worldX - o.worldX, this.worldY - o.worldY) < 180 + o.radius) {
+      let hit = false;
+      if (o.vertices) {
+        const lx = this.worldX - o.worldX;
+        const ly = this.worldY - o.worldY;
+        hit = isInsidePolygon(lx, ly, o.vertices) || getPolygonEdgeDist(this.worldX, this.worldY, o.vertices, o.worldX, o.worldY) < 180;
+      } else {
+        hit = Math.hypot(this.worldX - o.worldX, this.worldY - o.worldY) < 180 + (o.radius || 0);
+      }
+      if (hit) {
         o.hp -= 20;
-        if (o.hp <= 0) obstacles.splice(i, 1);
+        if (o.vertices) {
+          const intact = o.outlineSegments.filter(s => !s.broken);
+          if (intact.length > 0) {
+            intact[Math.floor(Math.random() * intact.length)].broken = true;
+          }
+        }
+        if (o.hp <= 0) {
+          if (o.vertices) { destroyRock(o, i); } else { obstacles.splice(i, 1); }
+        }
       }
     }
     for (let k = 0; k < 30; k++)

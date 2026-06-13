@@ -6,6 +6,7 @@ let consoleHistory = [];
 let historyIndex = -1;
 let consoleOutput = [];
 let consoleBuffer = "";
+let showMonitor = false;
 
 const consoleInput = document.getElementById("console-input");
 const consoleOutputEl = document.getElementById("console-output");
@@ -13,6 +14,7 @@ const consoleOverlay = document.getElementById("console-overlay");
 
 const CONSOLE_COMMANDS = {
   help: { fn: cmdHelp, desc: "List available commands" },
+  monitor: { fn: cmdMonitor, desc: "Toggle debug monitor overlay" },
   "set-hp": { fn: cmdSetHp, desc: "set-hp [N] — set HP" },
   "set-max-hp": { fn: cmdSetMaxHp, desc: "set-max-hp [N] — set max HP" },
   "add-hp": { fn: cmdAddHp, desc: "add-hp [N] — add HP" },
@@ -274,4 +276,9 @@ function cmdHeal() {
   player.invulnerable = false;
   updateUI();
   return t('console.hpRestored');
+}
+
+function cmdMonitor() {
+  showMonitor = !showMonitor;
+  return showMonitor ? "Monitor ON (FPS overlay)" : "Monitor OFF";
 }

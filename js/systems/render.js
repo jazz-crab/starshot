@@ -32,14 +32,34 @@ function drawGame() {
   // 3. OBJECTS
   obstacles.forEach((o) => {
     const ox = o.worldX - camera.offsetX, oy = o.worldY - camera.offsetY;
-    ctx.fillStyle = o.color || "#555";
-    ctx.fillRect(ox - o.radius, oy - o.radius, o.radius * 2, o.radius * 2);
-    if (o.maxHp) {
-      const bw = o.radius * 2, bh = 3;
-      ctx.fillStyle = "rgba(0,0,0,0.5)";
-      ctx.fillRect(ox - bw / 2, oy - o.radius - 8, bw, bh);
-      ctx.fillStyle = "#ff6f00";
-      ctx.fillRect(ox - bw / 2, oy - o.radius - 8, (o.hp / o.maxHp) * bw, bh);
+    if (o.vertices) {
+      ctx.fillStyle = o.color;
+      ctx.beginPath();
+      ctx.moveTo(ox + o.vertices[0].x, oy + o.vertices[0].y);
+      for (let i = 1; i < o.vertices.length; i++)
+        ctx.lineTo(ox + o.vertices[i].x, oy + o.vertices[i].y);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "white";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      for (const seg of o.outlineSegments) {
+        if (!seg.broken) {
+          ctx.moveTo(ox + seg.x1, oy + seg.y1);
+          ctx.lineTo(ox + seg.x2, oy + seg.y2);
+        }
+      }
+      ctx.stroke();
+    } else {
+      ctx.fillStyle = o.color || "#555";
+      ctx.fillRect(ox - o.radius, oy - o.radius, o.radius * 2, o.radius * 2);
+      if (o.maxHp) {
+        const bw = o.radius * 2, bh = 3;
+        ctx.fillStyle = "rgba(0,0,0,0.5)";
+        ctx.fillRect(ox - bw / 2, oy - o.radius - 8, bw, bh);
+        ctx.fillStyle = "#ff6f00";
+        ctx.fillRect(ox - bw / 2, oy - o.radius - 8, (o.hp / o.maxHp) * bw, bh);
+      }
     }
   });
   healthPacks.forEach((hp) => hp.draw(camera.offsetX, camera.offsetY));
@@ -132,5 +152,45 @@ function drawGame() {
       (player.dashCooldown / player.dashMaxCooldown) * 40,
       4,
     );
+  }
+
+  // MONITOR OVERLAY
+  if (showMonitor) {
+    const lines = [
+      "== MONITOR ==",
+      "FPS:      " + currentFps,
+      "chunk:    " + lastChunkX + ", " + lastChunkY,
+      "obstacles:" + obstacles.length,
+      "enemies:  " + enemies.length,
+      "projectiles:" + projectiles.length,
+      "particles:" + particles.length,
+      "grenades: " + grenades.length,
+      "expOrbs:  " + expOrbs.length,
+      "coinOrbs: " + coinOrbs.length,
+      "damageTxt:" + damageTexts.length,
+      "healthPk: " + healthPacks.length,
+      "smoke:    " + smokeClouds.length,
+      "---------",
+      "TOTAL obj:" + (obstacles.length + enemies.length + projectiles.length +
+        particles.length + grenades.length + expOrbs.length + coinOrbs.length +
+        damageTexts.length + healthPacks.length + smokeClouds.length),
+      "MEM est:  " + (
+        obstacles.length * 200 + enemies.length * 150 + projectiles.length * 80 +
+        particles.length * 30 + grenades.length * 80 + expOrbs.length * 50 +
+        coinOrbs.length * 50 + damageTexts.length * 60 + healthPacks.length * 40 +
+        smokeClouds.length * 40
+      ) + " B",
+    ];
+    const lineH = 16;
+    const pad = 10;
+    const w = 210;
+    const h = lines.length * lineH + pad * 2;
+    ctx.save();
+    ctx.fillStyle = "rgba(0,0,0,0.75)";
+    ctx.fillRect(8, 8, w, h);
+    ctx.fillStyle = "#0f0";
+    ctx.font = "13px monospace";
+    lines.forEach((l, i) => ctx.fillText(l, 14, 20 + i * lineH));
+    ctx.restore();
   }
 }
