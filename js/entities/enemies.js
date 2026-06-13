@@ -106,7 +106,7 @@ function startWave() {
   waveCleared = false;
   waveEnemiesSpawned = 0;
   waveEnemiesKilled = 0;
-  waveSpawnTimer = 0;
+  waveSpawnTimer = -WAVE_CONFIG.waveStartDelay;
 
   tempDmgBoost = 1;
 

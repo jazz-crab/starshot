@@ -58,7 +58,7 @@ const ENEMY_TYPES = [
     radius: 12,
     color: "#ff5252",
     hp: 5,
-    speed: 3.8,
+    speed: 4.5,
     score: 100,
     damage: 1,
     xp: 20,
@@ -68,7 +68,7 @@ const ENEMY_TYPES = [
     radius: 20,
     color: "#ff1744",
     hp: 15,
-    speed: 2.2,
+    speed: 3.5,
     score: 300,
     damage: 3,
     xp: 50,
@@ -78,7 +78,7 @@ const ENEMY_TYPES = [
     radius: 35,
     color: "#b71c1c",
     hp: 35,
-    speed: 1.2,
+    speed: 2.2,
     score: 1000,
     damage: 8,
     xp: 150,
@@ -87,12 +87,13 @@ const ENEMY_TYPES = [
 
 // ===== WAVES =====
 const WAVE_CONFIG = {
-  baseEnemies: 4,      // wave 1: 4 + 1*2 = 6 enemies
-  enemiesPerWave: 2,   // +2 per wave
-  spawnIntervalBase: 1200, // ms between spawns on wave 1
+  baseEnemies: 6,      // wave 1: 6 + 1*4 = 10 enemies
+  enemiesPerWave: 4,   // +4 per wave
+  spawnIntervalBase: 800, // ms between spawns on wave 1
   spawnIntervalDec: 50,    // -50ms per wave
-  spawnIntervalMin: 300,
+  spawnIntervalMin: 200,
   hpScale: 0.03,       // +3% HP per wave
+  waveStartDelay: 1500, // ms before first spawn of each wave
   bossWaveInterval: 10,
 };
 
@@ -102,7 +103,7 @@ const BOSS_BASE = {
   color: "#ff0000",
   hpMult: 30,    // boss HP = 30 * wave
   damageMult: 5, // boss damage = 5 * (1 + wave * 0.1)
-  speed: 0.8,
+  speed: 1.0,
   scoreMult: 500,
   coinDrop: 30,  // base coins: 30 + wave * 2
   xp: 500,

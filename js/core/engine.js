@@ -129,6 +129,7 @@ function updateWaveSpawn() {
 
 // ===== ENEMY LOGIC =====
 function updateEnemiesLogic() {
+  steeringRays = [];
   enemies.forEach((en, i) => {
     if (en instanceof Boss) {
       en.update();
@@ -156,7 +157,7 @@ function updateEnemiesLogic() {
       }
       let moveAngle;
       if (canSeePlayer) {
-        moveAngle = Math.atan2(player.worldY - en.worldY, player.worldX - en.worldX);
+        moveAngle = getSteeringDirection(en, obstacles, enemies);
       } else {
         moveAngle = Math.atan2(en.kbVY || 1, en.kbVX || 1);
       }

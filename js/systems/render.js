@@ -154,6 +154,18 @@ function drawGame() {
     );
   }
 
+  // STEERING DEBUG RAYS
+  if (showMonitor && steeringRays.length) {
+    for (const r of steeringRays) {
+      ctx.strokeStyle = r.blocked ? "rgba(255,0,0,0.4)" : "rgba(0,255,0,0.5)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(r.x1 - camera.x, r.y1 - camera.y);
+      ctx.lineTo(r.x2 - camera.x, r.y2 - camera.y);
+      ctx.stroke();
+    }
+  }
+
   // MONITOR OVERLAY
   if (showMonitor) {
     const lines = [
