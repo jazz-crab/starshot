@@ -23,7 +23,7 @@ const player = {
   isDashing: false,
   vx: 0,
   vy: 0,
-  maxSpeed: 5,
+  maxSpeed: 4,
   accel: 0.7,
   friction: 0.9,
   kbX: 0,

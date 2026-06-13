@@ -142,6 +142,21 @@ function updateEnemiesLogic() {
         en.kbVX += pushX * 0.5;
         en.kbVY += pushY * 0.5;
       }
+      const margin = 150;
+      const halfW = canvas.width / 2;
+      const halfH = canvas.height / 2;
+      const bdx = en.worldX - camera.x;
+      const bdy = en.worldY - camera.y;
+      if (Math.abs(bdx) > halfW + margin || Math.abs(bdy) > halfH + margin) {
+        const a = Math.atan2(player.worldY - en.worldY, player.worldX - en.worldX);
+        en.worldX += Math.cos(a) * en.speed * 3;
+        en.worldY += Math.sin(a) * en.speed * 3;
+        if (obstacles.length > 0) {
+          const oc2 = checkCircleObstacleCollision(en.worldX, en.worldY, en.radius);
+          en.worldX = oc2.x;
+          en.worldY = oc2.y;
+        }
+      }
     } else {
       en.worldX += en.kbVX;
       en.worldY += en.kbVY;
@@ -174,6 +189,22 @@ function updateEnemiesLogic() {
         en.worldY = oc.y;
         en.kbVX += pushX * 0.5;
         en.kbVY += pushY * 0.5;
+      }
+      // Off-screen nudge: pull far enemies back toward player
+      const margin = 150;
+      const halfW = canvas.width / 2;
+      const halfH = canvas.height / 2;
+      const dx = en.worldX - camera.x;
+      const dy = en.worldY - camera.y;
+      if (Math.abs(dx) > halfW + margin || Math.abs(dy) > halfH + margin) {
+        const a = Math.atan2(player.worldY - en.worldY, player.worldX - en.worldX);
+        en.worldX += Math.cos(a) * en.speed * 3;
+        en.worldY += Math.sin(a) * en.speed * 3;
+        if (obstacles.length > 0) {
+          const oc2 = checkCircleObstacleCollision(en.worldX, en.worldY, en.radius);
+          en.worldX = oc2.x;
+          en.worldY = oc2.y;
+        }
       }
     }
 
