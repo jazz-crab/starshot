@@ -145,7 +145,8 @@ function startWorldResumeTimer() {
     } else {
       resumeCounterEl.innerText = count;
       if (typeof playSound === "function") {
-        playSound(200, "sine", 0.1, 0.02);
+        playSound(523, "square", 0.08, 0.025);
+        setTimeout(() => playSound(440, "square", 0.12, 0.012), 65);
       }
     }
   }, 500);
@@ -160,8 +161,14 @@ function wrapButton(btn, type) {
             <span class="btn-text-overlay">${html}</span>
         </div>
     `;
-  btn.onmouseenter = () => btn.classList.add("focused");
-  btn.onmouseleave = () => btn.classList.remove("focused");
+  btn.addEventListener("mouseenter", () => {
+    btn.classList.add("focused");
+    if (typeof playSound === "function") playSound(880, "square", 0.04, 0.015);
+  });
+  btn.addEventListener("mouseleave", () => btn.classList.remove("focused"));
+  btn.addEventListener("click", () => {
+    if (typeof playSound === "function") playSound(660, "square", 0.08, 0.03);
+  });
 }
 
 document.addEventListener("DOMContentLoaded", () => {

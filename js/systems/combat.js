@@ -23,7 +23,7 @@ function tryShoot() {
   player.lastShot = now;
   screenFlash = Math.min(screenFlash + 0.08, 0.25);
   shakeIntensity += currentWep.shake;
-  playSound(400, "triangle", 0.05);
+  playSound(400, "triangle", 0.05, 0.01, 0.1);
 
   let targetAngle;
   const pSY = player.worldY - camera.offsetY;

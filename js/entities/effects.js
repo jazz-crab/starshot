@@ -116,6 +116,7 @@ class ExperienceOrb {
     }
   }
   collect() {
+    playSound(880, "sine", 0.06, 0.012);
     gainXp(this.amount);
     let txt = damageTexts.find((t) => t.type === "xp" && t.alpha > 0.7);
     if (txt) {
@@ -180,7 +181,7 @@ class Coin {
   }
   collect() {
     coins += this.amount;
-    playSound(600, "sine", 0.05, 0.01);
+    playSound(1400, "triangle", 0.08, 0.015);
     let txt = damageTexts.find((t) => t.type === "coin" && t.alpha > 0.7);
     if (txt) {
       txt.value += this.amount;

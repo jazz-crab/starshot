@@ -230,6 +230,7 @@ function updateEnemiesLogic() {
         ),
       );
       player.hp -= dmg;
+      playSound(200, "square", 0.12, 0.06);
       const pushAngle = Math.atan2(player.worldY - en.worldY, player.worldX - en.worldX);
       player.kbX = Math.cos(pushAngle) * (isBoss ? 25 : 12);
       player.kbY = Math.sin(pushAngle) * (isBoss ? 25 : 12);
@@ -313,6 +314,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     applyLanguage();
     dbReady = true;
+    preloadSounds((progress) => {
+      const pct = Math.round(progress * 100);
+      document.getElementById("loading-bar-fill").style.width = pct + "%";
+      document.getElementById("loading-percent").textContent = pct + "%";
+    }).then(() => {
+      document.getElementById("loading-bar-fill").style.width = "100%";
+      document.getElementById("loading-percent").textContent = "100%";
+      setTimeout(() => {
+        document.getElementById("loading-screen").classList.add("hidden");
+      }, 400);
+    });
     requestAnimationFrame(animate);
   });
 });
