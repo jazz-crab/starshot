@@ -18,6 +18,8 @@ class Boss {
     this.worldX = 0;
     this.worldY = 0;
     this.lastAttack = 0;
+    this.vx = 0;
+    this.vy = 0;
     this.kbVX = 0;
     this.kbVY = 0;
     this.isGolden = false;
@@ -206,7 +208,10 @@ function spawnEnemy() {
     color: isGolden ? "#ffd700" : cfg.color,
     worldX: wx,
     worldY: wy,
+    vx: 0,
+    vy: 0,
     lastAttack: 0,
+    lastShot: 0,
     kbVX: 0,
     kbVY: 0,
   });

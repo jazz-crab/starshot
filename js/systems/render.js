@@ -104,6 +104,14 @@ function drawGame() {
       const healthWidth = (en.hp / en.maxHp) * barWidth;
       ctx.fillRect(screenX - barWidth / 2, barY, healthWidth, barHeight);
     }
+    if (en.aimAngle != null) {
+      ctx.strokeStyle = "rgba(255,255,200,0.3)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(screenX, screenY);
+      ctx.lineTo(screenX + Math.cos(en.aimAngle) * (en.radius + 15), screenY + Math.sin(en.aimAngle) * (en.radius + 15));
+      ctx.stroke();
+    }
   });
 
   // 5. PLAYER

@@ -1,5 +1,5 @@
 class Projectile {
-  constructor(worldX, worldY, angle, speed, damage, range, knockback) {
+  constructor(worldX, worldY, angle, speed, damage, range, knockback, bulletRadius, source) {
     this.worldX = worldX;
     this.worldY = worldY;
     this.startX = worldX;
@@ -12,7 +12,9 @@ class Projectile {
     this.range = range;
     this.knockback = knockback;
     this.dead = false;
-    this.radius = currentWep.bulletRadius;
+    this.radius = bulletRadius != null ? bulletRadius : (currentWep ? currentWep.bulletRadius : 3);
+    this.source = source || 'player';
+    this.color = this.source === 'enemy' ? '#ff4444' : '#ffffff';
     this.history = [];
     this.maxHistory = 6;
   }
@@ -47,26 +49,47 @@ class Projectile {
         1,
         Math.round(this.damage * fadeMult),
       );
-      for (let i = enemies.length - 1; i >= 0; i--) {
-        const en = enemies[i];
+      if (this.source === 'enemy') {
         if (
-          Math.hypot(this.worldX - en.worldX, this.worldY - en.worldY) <
-          en.radius + this.radius
+          Math.hypot(this.worldX - player.worldX, this.worldY - player.worldY) <
+          player.radius + this.radius &&
+          !player.invulnerable && !isGodMode
         ) {
           damageTexts.push(
-            new DamageText(en.worldX, en.worldY, "-" + actualDmg, "#ff4444"),
+            new DamageText(player.worldX, player.worldY, "-" + actualDmg, "#ff4444"),
           );
-          en.kbVX += Math.cos(this.angle) * this.knockback;
-          en.kbVY += Math.sin(this.angle) * this.knockback;
-          en.hp -= actualDmg;
-          totalDamageDealt += actualDmg;
-          if (player.nextShotIgnites) {
-            en.burning = { timer: player.nextShotIgnites.duration, damage: player.nextShotIgnites.dmg, tickCounter: 0 };
-            player.nextShotIgnites = null;
-          }
+          player.hp -= actualDmg;
+          const pushAngle = Math.atan2(player.worldY - this.worldY, player.worldX - this.worldX);
+          player.kbX = Math.cos(pushAngle) * this.knockback;
+          player.kbY = Math.sin(pushAngle) * this.knockback;
+          player.invulnerable = true;
+          setTimeout(() => (player.invulnerable = false), 400);
           this.dead = true;
-          if (en.hp <= 0) handleEnemyDeath(en, i);
+          if (player.hp <= 0) showDeathScreen();
           break;
+        }
+      } else {
+        for (let i = enemies.length - 1; i >= 0; i--) {
+          const en = enemies[i];
+          if (
+            Math.hypot(this.worldX - en.worldX, this.worldY - en.worldY) <
+            en.radius + this.radius
+          ) {
+            damageTexts.push(
+              new DamageText(en.worldX, en.worldY, "-" + actualDmg, "#ff4444"),
+            );
+            en.kbVX += Math.cos(this.angle) * this.knockback;
+            en.kbVY += Math.sin(this.angle) * this.knockback;
+            en.hp -= actualDmg;
+            totalDamageDealt += actualDmg;
+            if (player.nextShotIgnites) {
+              en.burning = { timer: player.nextShotIgnites.duration, damage: player.nextShotIgnites.dmg, tickCounter: 0 };
+              player.nextShotIgnites = null;
+            }
+            this.dead = true;
+            if (en.hp <= 0) handleEnemyDeath(en, i);
+            break;
+          }
         }
       }
       if (!this.dead) {
@@ -138,14 +161,14 @@ class Projectile {
         ctx.moveTo(verts[0].x, verts[0].y);
         for (let k = 1; k < verts.length; k++) ctx.lineTo(verts[k].x, verts[k].y);
         ctx.closePath();
-        ctx.fillStyle = "white";
+        ctx.fillStyle = this.color;
         ctx.fill();
       }
       ctx.restore();
     }
     ctx.save();
     ctx.globalAlpha = alpha;
-    ctx.fillStyle = "white";
+    ctx.fillStyle = this.color;
     ctx.beginPath();
     ctx.arc(this.worldX - cx, this.worldY - cy, this.radius, 0, Math.PI * 2);
     ctx.fill();
