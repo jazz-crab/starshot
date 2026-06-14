@@ -296,7 +296,8 @@ setInterval(() => {
   }
 }, 1000);
 
-document.addEventListener("DOMContentLoaded", () => {
+function bootGame() {
+  resize();
   dbInit(() => {
     if (savedProgress) {
       coins = savedProgress.coins || 0;
@@ -327,4 +328,10 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     requestAnimationFrame(animate);
   });
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", bootGame);
+} else {
+  bootGame();
+}

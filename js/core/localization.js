@@ -1,6 +1,6 @@
-export let currentLang = "en";
+let currentLang = "en";
 
-export const STRINGS = {
+const STRINGS = {
   en: {
     menu: {
       title: "STARSHOT",
@@ -497,7 +497,7 @@ function getPath(obj, path) {
   return val;
 }
 
-export function t(path, vars) {
+function t(path, vars) {
   const str = getPath(STRINGS[currentLang], path);
   if (str == null) return path;
   if (vars)
@@ -507,11 +507,11 @@ export function t(path, vars) {
   return str;
 }
 
-export function getLangLabel(code) {
+function getLangLabel(code) {
   return code === "en" ? "EN" : "RU";
 }
 
-export function applyLanguage(cb) {
+function applyLanguage(cb) {
   document.querySelectorAll("[data-i18n]").forEach((el) => {
     const key = el.dataset.i18n;
     const text = t(key);
@@ -527,6 +527,6 @@ export function applyLanguage(cb) {
   if (cb) cb();
 }
 
-export function setLang(l) {
+function setLang(l) {
   currentLang = l;
 }

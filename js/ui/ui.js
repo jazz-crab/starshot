@@ -171,13 +171,19 @@ function wrapButton(btn, type) {
   });
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function initUI() {
   startScreen.querySelectorAll("button").forEach((b) => wrapButton(b, "start"));
   const hints = document.querySelectorAll(".hint");
   hints.forEach((h) => {
     h.classList.add("hidden");
   });
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initUI);
+} else {
+  initUI();
+}
 
 // ===== DEATH =====
 window.showDeathScreen = function () {

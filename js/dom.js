@@ -1,0 +1,253 @@
+function buildDOM() {
+  document.body.innerHTML = `
+    <div id="loading-screen">
+      <div id="loading-bar-bg">
+        <div id="loading-bar-fill"></div>
+        <div class="bar-text" id="loading-percent">0%</div>
+      </div>
+      <div id="loading-status" data-i18n="loading.buffering">BUFFERING SOUNDS...</div>
+    </div>
+
+    <div id="start-screen">
+      <h1 id="start-title" data-i18n="menu.title">STARSHOT</h1>
+      <div class="button-container" id="start-buttons">
+        <button onclick="startFirstGame()" data-i18n="menu.startBattle">START BATTLE</button>
+        <button onclick="showPermaShop()" data-i18n="menu.shop">SHOP</button>
+        <button onclick="showStatsScreen()" data-i18n="menu.stats">STATS</button>
+        <button onclick="showSettingsScreen()" data-i18n="menu.settings">SETTINGS</button>
+      </div>
+    </div>
+
+    <div id="ui" class="hidden">
+      <div class="full-width-bar top-bar">
+        <div id="hp-bar-fill"></div>
+        <div class="bar-text">
+          <span data-i18n="hud.hp">HP</span>:&nbsp;<span id="hp-val">0</span>/<span id="hp-max">0</span>
+        </div>
+      </div>
+
+      <div class="full-width-bar bottom-bar">
+        <div id="wave-bar-fill"></div>
+        <div class="bar-text">
+          <span id="wave-text-wrap"><span id="wave-bar-label" data-i18n="hud.wave">Wave</span>: <span id="wave-num">1</span></span>
+        </div>
+      </div>
+
+      <div class="top-left-ui-simple">
+        <div id="score-line"><span data-i18n="hud.score">SCORE</span>: <span id="score">0</span></div>
+        <div id="level-line"><span data-i18n="hud.level">LEVEL</span>: <span id="level">1</span></div>
+        <div id="xp-line"><span data-i18n="hud.xp">XP</span>: <span id="xp-val">0/100</span></div>
+        <div style="color: #ffeb3b">
+          <span data-i18n="hud.coins">COINS</span>: <span id="coins">0</span>
+        </div>
+        <div id="auto-status" class="hidden blinking" style="color: #0f0">
+          <span data-i18n="hud.autoOn">AUTO: ON (Y)</span>
+        </div>
+      </div>
+
+      <div class="top-right-hud-wrapper">
+        <div id="weapon-stats-hud">
+          <div class="hud-column">
+            <div class="stat-row">
+              <span data-i18n="hud.damage">DAMAGE</span><span id="hud-dmg">0</span>
+            </div>
+            <div class="stat-row">
+              <span data-i18n="hud.fireRate">FIRE RATE</span><span id="hud-firerate">0</span>
+            </div>
+            <div class="stat-row">
+              <span data-i18n="hud.magazine">MAGAZINE</span><span id="hud-mag">0</span>
+            </div>
+            <div class="stat-row">
+              <span data-i18n="hud.reload">RELOAD</span><span id="hud-reload">0</span>
+            </div>
+          </div>
+          <div class="hud-column">
+            <div class="stat-row">
+              <span data-i18n="hud.range">RANGE</span><span id="hud-range">0</span>
+            </div>
+            <div class="stat-row">
+              <span data-i18n="hud.bulletSpd">BULLET SPD</span><span id="hud-bspeed">0</span>
+            </div>
+            <div class="stat-row">
+              <span data-i18n="hud.knockback">KNOCKBACK</span><span id="hud-kb">0</span>
+            </div>
+            <div class="stat-row">
+              <span data-i18n="hud.accuracy">ACCURACY</span><span id="hud-spread">0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-right-ui-new">
+        <div class="ult-container-new">
+          <span data-i18n="hud.ult">ULT (Q)</span>
+          <div class="ult-bar-bg"><div id="ult-bar-fill"></div></div>
+        </div>
+        <div class="grenade-label-new">
+          <span data-i18n="hud.ability">ABILITY (RMB):</span> <span id="grenade-label" data-i18n="hud.ready">READY</span>
+        </div>
+        <div class="ammo-label-new">
+          <span data-i18n="hud.ammo">AMMO</span>: <span id="ammo">0</span> / <span id="mag-size">0</span>
+        </div>
+        <div id="reloading-label" style="color: #ff1744; font-weight: bold; height: 20px"></div>
+      </div>
+
+      <div id="timer-container">00:00</div>
+    </div>
+
+    <div id="resume-overlay" class="hidden">
+      <div id="resume-counter">3</div>
+    </div>
+    <div id="wave-announce" class="hidden"></div>
+    <div id="pause-screen" class="hidden">
+      <h1 data-i18n="pause.title">PAUSE</h1>
+      <div class="button-container" style="margin-top:40px">
+        <button onclick="resumeGame()" data-i18n="pause.resume">RESUME</button>
+        <button onclick="pauseToMainMenu()" data-i18n="pause.mainMenu">MAIN MENU</button>
+      </div>
+    </div>
+
+    <div id="death-screen" class="hidden">
+      <h1 data-i18n="death.title">DEFEATED</h1>
+      <div class="death-stats">
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="death.time">TIME</span>
+          <span class="death-stat-value" id="stat-time">00:00</span>
+        </div>
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="death.score">SCORE</span>
+          <span class="death-stat-value" id="stat-score">0</span>
+        </div>
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="death.coins">COINS</span>
+          <span class="death-stat-value" id="stat-coins">0</span>
+        </div>
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="death.level">LEVEL</span>
+          <span class="death-stat-value" id="stat-level">1</span>
+        </div>
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="death.wave">WAVE</span>
+          <span class="death-stat-value" id="stat-wave">0</span>
+        </div>
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="death.killed">KILLED</span>
+          <span class="death-stat-value" id="stat-kills">0</span>
+        </div>
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="death.damage">DAMAGE</span>
+          <span class="death-stat-value" id="stat-damage">0</span>
+        </div>
+      </div>
+      <div class="button-container">
+        <button onclick="restartGame()" data-i18n="death.restart">RESTART</button>
+        <button onclick="goToMainMenu()" data-i18n="death.mainMenu">MAIN MENU</button>
+      </div>
+    </div>
+
+    <div id="stats-screen" class="hidden">
+      <h1 data-i18n="stats.title">STATISTICS</h1>
+      <div class="death-stats">
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="stats.totalCoins">TOTAL COINS</span>
+          <span class="death-stat-value" id="stats-coins">0</span>
+        </div>
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="stats.bestScore">BEST SCORE</span>
+          <span class="death-stat-value" id="stats-best-score">0</span>
+        </div>
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="stats.bestLevel">BEST LEVEL</span>
+          <span class="death-stat-value" id="stats-best-level">1</span>
+        </div>
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="stats.bestTime">BEST TIME</span>
+          <span class="death-stat-value" id="stats-best-time">00:00</span>
+        </div>
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="stats.totalKills">TOTAL KILLS</span>
+          <span class="death-stat-value" id="stats-total-kills">0</span>
+        </div>
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="stats.totalDamage">TOTAL DAMAGE</span>
+          <span class="death-stat-value" id="stats-total-damage">0</span>
+        </div>
+        <div class="death-stat-row">
+          <span class="death-stat-label" data-i18n="stats.runs">RUNS</span>
+          <span class="death-stat-value" id="stats-plays">0</span>
+        </div>
+      </div>
+      <div class="button-container">
+        <button onclick="closeStatsScreen()" data-i18n="menu.back">BACK</button>
+      </div>
+    </div>
+
+    <div id="settings-screen" class="hidden">
+      <h1 data-i18n="settings.title">SETTINGS</h1>
+      <div class="settings-list">
+        <div class="settings-row">
+          <span class="settings-label" data-i18n="settings.language">LANGUAGE</span>
+          <div class="settings-control">
+            <button class="adj-btn" onclick="cycleLanguage(-1)">\u2212</button>
+            <span class="settings-value" id="lang-label">EN</span>
+            <button class="adj-btn" onclick="cycleLanguage(1)">+</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label" data-i18n="settings.sfx">SFX VOLUME</span>
+          <div class="settings-control">
+            <button class="adj-btn" onclick="adjustSfxVolume(-0.1)">\u2212</button>
+            <span class="settings-value" id="sfx-vol-label">100%</span>
+            <button class="adj-btn" onclick="adjustSfxVolume(0.1)">+</button>
+          </div>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label" data-i18n="settings.music">MUSIC VOLUME</span>
+          <div class="settings-control">
+            <button class="adj-btn" onclick="adjustMusicVolume(-0.1)">\u2212</button>
+            <span class="settings-value" id="music-vol-label">50%</span>
+            <button class="adj-btn" onclick="adjustMusicVolume(0.1)">+</button>
+          </div>
+        </div>
+      </div>
+      <div class="button-container">
+        <button onclick="closeSettingsScreen()" data-i18n="menu.back">BACK</button>
+      </div>
+    </div>
+
+    <div id="perma-shop-screen" class="hidden">
+      <h1 data-i18n="shop.title">SHOP</h1>
+      <div style="color:#ffeb3b;font-size:24px;margin-bottom:20px">
+        <span data-i18n="shop.coins">COINS:</span> <span id="pshop-coins">0</span>
+      </div>
+      <div class="perma-shop-items">
+        <button id="pshop-permaHp" onclick="buyPermaShopItem('permaHp')">MAX HP +5</button>
+        <button id="pshop-permaDmg" onclick="buyPermaShopItem('permaDmg')">DAMAGE +5%</button>
+        <button id="pshop-permaSpd" onclick="buyPermaShopItem('permaSpd')">SPEED +0.3</button>
+      </div>
+      <div class="button-container">
+        <button onclick="closePermaShop()" data-i18n="menu.back">BACK</button>
+      </div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="char-info-screen" class="hidden">
+      <h1 id="char-info-title"></h1>
+      <div id="char-info-desc"></div>
+      <div id="char-info-abilities"></div>
+      <div id="char-info-locked" class="hidden"></div>
+      <div class="button-container" style="margin-top:30px">
+        <button onclick="closeCharInfo()" data-i18n="chars.close">CLOSE [ESC]</button>
+      </div>
+    </div>
+
+    <div id="console-overlay" class="hidden">
+      <div id="console-output"></div>
+      <div id="console-input-line">
+        <span class="console-prompt">></span>
+        <span id="console-input" class="console-input-text"></span>
+      </div>
+    </div>
+  `;
+}
